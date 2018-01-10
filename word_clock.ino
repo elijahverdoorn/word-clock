@@ -42,6 +42,9 @@ RTC_DS3231 rtc;
 #define TIME_AUTO_OFF 22 // 11pm
 #define TIME_AUTO_ON 8 // 8am
 
+// Special Day constants
+#define SPECIAL_DAY 28
+
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = Arduino pin number (most are valid)
 // Parameter 3 = pixel type flags, add together as needed:
@@ -65,6 +68,8 @@ uint32_t off = strip_1.Color(0, 0, 0);
 uint32_t red = strip_1.Color(255, 0, 0);
 uint32_t green = strip_1.Color(0, 255, 0);
 uint32_t blue = strip_1.Color(0, 0, 255);
+uint32_t lightBlue = strip_1.Color(8, 94, 154);
+uint32_t pink = strip_1.Color(255, 0, 198);
 
 // Global variables
 static unsigned long lastRTCQueryTime = 0; // the last time we queried the clock for the time
@@ -72,6 +77,7 @@ static unsigned long lastRTCQueryTime = 0; // the last time we queried the clock
 static unsigned int currentHour = 0; // the hour that will be displayed on the clock
 static unsigned int currentMinute = 0; // the minute that will be used to calculate what to show on the clock
 static unsigned int currentHour24 = 0; // the hour (in 24 hour time) used for TIME MODE
+static unsigned int currentDayOfMonth = 0; // the day of the month, used for lighting dead letters on a specifc day
 
 // Globals for mode button
 int modeButtonState = LOW;
@@ -171,7 +177,12 @@ void loop() {
   if (shouldDisplayTimeBool) {
     // the user wants the time to be displayed
     clearAll(); // start with a clean slate
-    showTime((currentHour + hourOffset) % 12, (currentMinute + minuteOffset) % 60);
+    showTime((currentHour + hourOffset) % 12, (currentMinute + minuteOffset) % 60, lightBlue);
+
+    if (currentDayOfMonth == SPECIAL_DAY) {
+      lightDeadLetters(pink);
+    }
+
     showAll();
   } else {
     clearAll();
@@ -334,130 +345,130 @@ void testMatrix() {
   }
 }
 
-void showTime(int hour, int minute) {
-  lightItIs(red);
+void showTime(int hour, int minute, uint32_t col) {
+  lightItIs(col);
 
   if (minute < 5) {
-    lightOClock(red);
+    lightOClock(col);
   } else if (minute >= 5 && minute < 10) {
-    lightFiveTop(red);
-    lightMinutes(red);
+    lightFiveTop(col);
+    lightMinutes(col);
   } else if (minute >= 10 && minute < 15) {
-    lightMinutes(red);
-    lightTenTop(red);
+    lightMinutes(col);
+    lightTenTop(col);
   } else if (minute >= 15 && minute < 20) {
-    lightQuarter(red);
+    lightQuarter(col);
   } else if (minute >= 20 && minute < 25) {
-    lightTwenty(red);
+    lightTwenty(col);
     lightMinutes(red);
   } else if (minute >= 25 && minute < 30) {
-    lightTwenty(red);
-    lightFiveTop(red);
-    lightMinutes(red);
+    lightTwenty(col);
+    lightFiveTop(col);
+    lightMinutes(col);
   } else if (minute >= 30 && minute < 35) {
-    lightHalf(red);
+    lightHalf(col);
   } else if (minute >= 35 && minute < 40) {
-    lightTwenty(red);
-    lightFiveTop(red);
-    lightMinutes(red);
+    lightTwenty(col);
+    lightFiveTop(col);
+    lightMinutes(col);
   } else if (minute >= 40 && minute < 45) {
-    lightTwenty(red);
-    lightMinutes(red);
+    lightTwenty(col);
+    lightMinutes(col);
   } else if (minute >= 45 && minute < 50) {
-    lightQuarter(red);
+    lightQuarter(col);
   } else if (minute >= 50 && minute < 55) {
-    lightTenTop(red);
-    lightMinutes(red);
+    lightTenTop(col);
+    lightMinutes(col);
   } else if (minute >= 55) {
-    lightFiveTop(red);
-    lightMinutes(red);
+    lightFiveTop(col);
+    lightMinutes(col);
   }
 
   // Handle the "hour" part of the time
   if (minute < 35) {
     if (minute >= 5) {
-      lightPast(red);
+      lightPast(col);
     }
 
     switch (hour) {
       case 1:
-        lightOne(red);
+        lightOne(col);
         break;
       case 2:
-        lightTwo(red);
+        lightTwo(col);
         break;
       case 3:
-        lightThree(red);
+        lightThree(col);
         break;
       case 4:
-        lightFour(red);
+        lightFour(col);
         break;
       case 5:
-        lightFiveBottom(red);
+        lightFiveBottom(col);
         break;
       case 6:
-        lightSix(red);
+        lightSix(col);
         break;
       case 7:
-        lightSeven(red);
+        lightSeven(col);
         break;
       case 8:
-        lightEight(red);
+        lightEight(col);
         break;
       case 9:
-        lightNine(red);
+        lightNine(col);
         break;
       case 10:
-        lightTenBottom(red);
+        lightTenBottom(col);
         break;
       case 11:
-        lightEleven(red);
+        lightEleven(col);
         break;
       case 12:
       case 0:
-        lightTwelve(red);
+        lightTwelve(col);
         break;
     }
   } else {
-    lightTo(red);
+    lightTo(col);
 
     switch ((hour + 1) % 12) {
       case 1:
-        lightOne(red);
+        lightOne(col);
         break;
       case 2:
-        lightTwo(red);
+        lightTwo(col);
         break;
       case 3:
-        lightThree(red);
+        lightThree(col);
         break;
       case 4:
-        lightFour(red);
+        lightFour(col);
         break;
       case 5:
-        lightFiveBottom(red);
+        lightFiveBottom(col);
         break;
       case 6:
-        lightSix(red);
+        lightSix(col);
         break;
       case 7:
-        lightSeven(red);
+        lightSeven(col);
         break;
       case 8:
-        lightEight(red);
+        lightEight(col);
         break;
       case 9:
-        lightNine(red);
+        lightNine(col);
         break;
       case 10:
-        lightTenBottom(red);
+        lightTenBottom(col);
         break;
       case 11:
-        lightEleven(red);
+        lightEleven(col);
         break;
       case 12:
       case 0:
-        lightTwelve(red);
+        lightTwelve(col);
         break;
     }
   }
@@ -478,6 +489,18 @@ void showTime(int hour, int minute) {
    _ = doesn't matter what the letter is, we're never going to light it
 */
 
+// In one clock, I hid a message in the dead letters, so I wanted a way to light them
+void lightDeadLetters(uint32_t color) {
+  strip_1.setPixelColor(2, color);
+  strip_1.setPixelColor(5, color);
+
+  strip_3.setPixelColor(4, color);
+  strip_3.setPixelColor(12, color);
+
+  strip_4.setPixelColor(6, color);
+
+  strip_8.setPixelColor(6, color);
+}
 
 void lightItIs(uint32_t color) {
   strip_1.setPixelColor(0, color);
@@ -684,5 +707,7 @@ void readTime() {
 
     currentMinute = currentMinute % 60; // we've accounted for the hour now, so we need any remaining minutes
   }
+
+  currentDayOfMonth = now.day(); // for turning on dead letters
 }
 
